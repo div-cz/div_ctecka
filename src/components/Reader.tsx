@@ -29,30 +29,127 @@ export const Reader = ({ book, onBack, onProgressUpdate }: ReaderProps) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Simulace obsahu pro demo
-  const demoContent = book.content || `
+  // Generování obsahu na základě konkrétní knihy
+  const generateBookContent = (book: Book) => {
+    if (book.content) {
+      return book.content;
+    }
+    
+    // Unikátní obsah pro každou knihu na základě ID
+    const contentTemplates = {
+      '1': `# ${book.title}
+
+${book.author ? `**Autor:** ${book.author}` : ''}
+
+## Kapitola 1: Úvod do TypeScript
+
+TypeScript je silně typovaný nadstavbový jazyk pro JavaScript. Poskytuje lepší vývojové prostředí a pomáhá při vývoji větších aplikací.
+
+### Základní typy
+
+TypeScript rozšiřuje JavaScript o statické typování, což znamená, že můžete definovat typy proměnných, funkcí a objektů už v době psaní kódu.
+
+## Kapitola 2: Interfaces a Classes
+
+Interface v TypeScript je způsob, jak definovat strukturu objektu. Umožňuje vám specifikovat, jaké vlastnosti musí objekt mít.
+
+### Příklad interface
+
+\`\`\`typescript
+interface User {
+  name: string;
+  age: number;
+  email?: string;
+}
+\`\`\`
+
+## Kapitola 3: Generics
+
+Generics umožňují vytvářet komponenty, které mohou pracovat s různými typy, zatímco si zachovávají informace o typech.`,
+
+      '2': `# ${book.title}
+
+${book.author ? `**Autor:** ${book.author}` : ''}
+
+## Kapitola 1: Úvod do React
+
+React je JavaScriptová knihovna pro tvorbu uživatelských rozhraní. Byla vyvinuta Facebookem a je založena na komponentovém přístupu.
+
+### Komponenty
+
+Komponenty jsou základními stavebními kameny React aplikací. Každý komponent je funkce nebo třída, která vrací JSX.
+
+## Kapitola 2: Hooks
+
+Hooks jsou funkce, které vám umožňují "připojit se" do React funkcionalit. Nejběžnější jsou useState a useEffect.
+
+### useState Hook
+
+\`\`\`jsx
+const [state, setState] = useState(initialValue);
+\`\`\`
+
+useState vám umožňuje přidat stav do funkčních komponent.
+
+## Kapitola 3: Conditional Rendering
+
+React umožňuje podmíněné vykreslování komponent na základě stavu aplikace nebo props.`,
+
+      '3': `# ${book.title}
+
+## Úvod
+
+Toto je dokumentace napsaná v Markdown formátu. Markdown je lehký značkovací jazyk, který umožňuje formátování textu pomocí jednoduchých symbolů.
+
+## Základní syntaxe
+
+### Nadpisy
+
+Nadpisy se vytvářejí pomocí symbolů \`#\`:
+
+- \`#\` pro h1
+- \`##\` pro h2  
+- \`###\` pro h3
+
+### Formátování textu
+
+- **Tučný text** - \`**text**\`
+- *Kurzíva* - \`*text*\`
+- \`Kód\` - \`\`text\`\`
+
+### Seznam
+
+1. První položka
+2. Druhá položka
+3. Třetí položka
+
+### Odkazy
+
+[Odkaz na stránku](https://example.com)
+
+## Závěr
+
+Markdown je jednoduchý a efektivní způsob psaní dokumentace.`
+    };
+    
+    return contentTemplates[book.id as keyof typeof contentTemplates] || `
 # ${book.title}
 
 ${book.author ? `**Autor:** ${book.author}` : ''}
 
-## Kapitola 1: Začátek
+## Obsah knihy
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+Toto je obsah knihy "${book.title}". Každá kniha má svůj jedinečný obsah.
 
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
-## Kapitola 2: Pokračování
+## Další kapitola
 
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    `;
+  };
 
-Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
-
-## Kapitola 3: Závěr
-
-At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.
-
-Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio.
-  `;
+  const bookContent = generateBookContent(book);
 
   const handleProgressChange = (value: number[]) => {
     const newProgress = value[0];
@@ -174,7 +271,7 @@ Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et d
             color: isDarkMode ? '#e5e7eb' : 'hsl(var(--reading-text))'
           }}
           dangerouslySetInnerHTML={{
-            __html: demoContent.split('\n').map(line => {
+            __html: bookContent.split('\n').map(line => {
               if (line.startsWith('# ')) {
                 return `<h1 class="text-2xl font-bold mt-8 mb-4">${line.slice(2)}</h1>`;
               } else if (line.startsWith('## ')) {
