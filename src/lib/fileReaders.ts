@@ -1,8 +1,9 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import JSZip from 'jszip';
 
-// Nastavení PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Deaktivujeme worker pro lepší kompatibilitu
+pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+(pdfjsLib as any).disableWorker = true;
 
 export const readMarkdownFile = async (file: File): Promise<string> => {
   try {
