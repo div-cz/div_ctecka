@@ -3,8 +3,8 @@ import ePub from 'epubjs';
 import * as pdfjsLib from 'pdfjs-dist';
 import { marked } from 'marked';
 
-// Nastavení PDF.js workera pro Vite prostředí
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Vypneme worker pro PDF.js - použijeme main thread
+pdfjsLib.GlobalWorkerOptions.workerSrc = '';
 
 export interface BookContent {
   content: string;
@@ -70,8 +70,7 @@ export const readPdfFile = async (file: File): Promise<BookContent> => {
     const pdf = await pdfjsLib.getDocument({
       data: arrayBuffer,
       useWorkerFetch: false,
-      isEvalSupported: false,
-      useSystemFonts: true
+      isEvalSupported: false
     }).promise;
     
     let content = '';
