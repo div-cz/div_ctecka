@@ -1,4 +1,8 @@
 import JSZip from 'jszip';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Jednoduchá konfigurace bez workeru
+pdfjsLib.GlobalWorkerOptions.workerSrc = '';
 
 export const readMarkdownFile = async (file: File): Promise<string> => {
   try {
@@ -12,36 +16,47 @@ export const readMarkdownFile = async (file: File): Promise<string> => {
 
 export const readPdfFile = async (file: File): Promise<string> => {
   try {
-    // Pro PDF soubory vytvořím pěkně formátovaný obsah
+    const arrayBuffer = await file.arrayBuffer();
+    
+    // Načtení PDF bez workeru
+    const loadingTask = pdfjsLib.getDocument({
+      data: arrayBuffer
+    });
+    
+    const pdf = await loadingTask.promise;
+    
     let fullText = `# ${file.name.replace('.pdf', '')}\n\n`;
-    fullText += `**Formát:** PDF dokument\n`;
-    fullText += `**Velikost:** ${(file.size / 1024 / 1024).toFixed(1)} MB\n`;
-    fullText += `**Nahráno:** ${new Date().toLocaleDateString('cs-CZ')}\n\n`;
+    fullText += `**Počet stran:** ${pdf.numPages}\n`;
+    fullText += `**Velikost:** ${(file.size / 1024 / 1024).toFixed(1)} MB\n\n`;
+
+    // Načteme text ze všech stránek (max 20 pro výkon)
+    const maxPages = Math.min(pdf.numPages, 20);
     
-    fullText += `## 📄 PDF soubor byl úspěšně načten\n\n`;
-    fullText += `Tento PDF dokument je nyní dostupný ve vaší knihovně. `;
-    fullText += `Můžete jej označit záložkami, sledovat pokrok čtení a vyhledávat v názvu.\n\n`;
-    
-    fullText += `### ✨ Funkce dostupné pro tento soubor:\n\n`;
-    fullText += `- 📖 Sledování pokroku čtení\n`;
-    fullText += `- 🔖 Nastavení záložek\n`;
-    fullText += `- 🔍 Vyhledávání v názvu a metadatech\n`;
-    fullText += `- 🌙 Tmavý/světlý režim čtení\n`;
-    fullText += `- ⚙️ Nastavení velikosti písma\n\n`;
-    
-    fullText += `### 📋 Informace o souboru:\n\n`;
-    fullText += `- **Název:** ${file.name}\n`;
-    fullText += `- **Typ MIME:** ${file.type || 'application/pdf'}\n`;
-    fullText += `- **Velikost:** ${file.size.toLocaleString()} bytů\n\n`;
-    
-    fullText += `---\n\n`;
-    fullText += `*Poznámka: Pro zobrazení plného textového obsahu PDF by byla potřeba specializovaná knihovna. `;
-    fullText += `Tento soubor je však plně funkční pro základní práci v knihovně.*`;
+    for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const textContent = await page.getTextContent();
+      
+      const pageText = textContent.items
+        .map((item: any) => item.str)
+        .join(' ')
+        .trim();
+      
+      if (pageText) {
+        fullText += `## Strana ${pageNum}\n\n${pageText}\n\n`;
+      } else {
+        fullText += `## Strana ${pageNum}\n\n*Strana neobsahuje text*\n\n`;
+      }
+    }
+
+    if (pdf.numPages > maxPages) {
+      fullText += `\n---\n*Zobrazeno ${maxPages} z ${pdf.numPages} stran*`;
+    }
 
     return fullText;
   } catch (error) {
     console.error('Chyba při čtení PDF:', error);
-    return `# ${file.name}\n\n**Chyba:** Nepodařilo se načíst PDF soubor.\n\n**Velikost:** ${(file.size / 1024 / 1024).toFixed(1)} MB`;
+    // Fallback pokud PDF.js selže
+    return `# ${file.name.replace('.pdf', '')}\n\n**Velikost:** ${(file.size / 1024 / 1024).toFixed(1)} MB\n\n## Obsah není dostupný\n\nPDF soubor byl nahrán, ale nepodařilo se extrahovat textový obsah.\n\nMožné důvody:\n- PDF obsahuje pouze obrázky\n- Text je ve speciálním formátu\n- Soubor je chráněn`;
   }
 };
 
