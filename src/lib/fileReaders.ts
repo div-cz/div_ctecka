@@ -1,9 +1,8 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import JSZip from 'jszip';
 
-// Deaktivujeme worker pro lepší kompatibilitu
+// Nastavení bez workeru pro lepší kompatibilitu
 pdfjsLib.GlobalWorkerOptions.workerSrc = '';
-(pdfjsLib as any).disableWorker = true;
 
 export const readMarkdownFile = async (file: File): Promise<string> => {
   try {
