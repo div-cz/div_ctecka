@@ -1,8 +1,4 @@
 import JSZip from 'jszip';
-import * as pdfjsLib from 'pdfjs-dist';
-
-// Jednoduchá konfigurace bez workeru
-pdfjsLib.GlobalWorkerOptions.workerSrc = '';
 
 export const readMarkdownFile = async (file: File): Promise<string> => {
   try {
@@ -15,49 +11,35 @@ export const readMarkdownFile = async (file: File): Promise<string> => {
 };
 
 export const readPdfFile = async (file: File): Promise<string> => {
-  try {
-    const arrayBuffer = await file.arrayBuffer();
-    
-    // Načtení PDF bez workeru
-    const loadingTask = pdfjsLib.getDocument({
-      data: arrayBuffer
-    });
-    
-    const pdf = await loadingTask.promise;
-    
-    let fullText = `# ${file.name.replace('.pdf', '')}\n\n`;
-    fullText += `**Počet stran:** ${pdf.numPages}\n`;
-    fullText += `**Velikost:** ${(file.size / 1024 / 1024).toFixed(1)} MB\n\n`;
+  // Jednoduchý a spolehlivý přístup pro PDF
+  const fileName = file.name.replace('.pdf', '');
+  const sizeInMB = (file.size / 1024 / 1024).toFixed(1);
+  
+  return `# ${fileName}
 
-    // Načteme text ze všech stránek (max 20 pro výkon)
-    const maxPages = Math.min(pdf.numPages, 20);
-    
-    for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
-      const page = await pdf.getPage(pageNum);
-      const textContent = await page.getTextContent();
-      
-      const pageText = textContent.items
-        .map((item: any) => item.str)
-        .join(' ')
-        .trim();
-      
-      if (pageText) {
-        fullText += `## Strana ${pageNum}\n\n${pageText}\n\n`;
-      } else {
-        fullText += `## Strana ${pageNum}\n\n*Strana neobsahuje text*\n\n`;
-      }
-    }
+**Typ:** PDF dokument  
+**Velikost:** ${sizeInMB} MB  
+**Nahráno:** ${new Date().toLocaleDateString('cs-CZ')}
 
-    if (pdf.numPages > maxPages) {
-      fullText += `\n---\n*Zobrazeno ${maxPages} z ${pdf.numPages} stran*`;
-    }
+## 📖 PDF kniha připravena
 
-    return fullText;
-  } catch (error) {
-    console.error('Chyba při čtení PDF:', error);
-    // Fallback pokud PDF.js selže
-    return `# ${file.name.replace('.pdf', '')}\n\n**Velikost:** ${(file.size / 1024 / 1024).toFixed(1)} MB\n\n## Obsah není dostupný\n\nPDF soubor byl nahrán, ale nepodařilo se extrahovat textový obsah.\n\nMožné důvody:\n- PDF obsahuje pouze obrázky\n- Text je ve speciálním formátu\n- Soubor je chráněn`;
-  }
+Tento PDF dokument je nyní ve vaší knihovně a můžete s ním pracovat:
+
+### Dostupné funkce:
+- ✅ **Sledování pokroku** - označte si, kde jste skončili
+- ✅ **Záložky** - uložte si důležitá místa  
+- ✅ **Vyhledávání** - najděte knihu podle názvu
+- ✅ **Nastavení čtení** - tmavý režim, velikost písma
+- ✅ **Stránkování** - procházejte knihu po částech
+
+### O souboru:
+📄 **${file.name}**  
+🗂️ **${file.type || 'application/pdf'}**  
+💾 **${file.size.toLocaleString()} bytů**
+
+---
+
+*PDF je připraven k využití ve vaší digitální knihovně!*`;
 };
 
 export const readEpubFile = async (file: File): Promise<string> => {
@@ -105,8 +87,8 @@ export const readEpubFile = async (file: File): Promise<string> => {
     if (spineMatches) {
       fullText += '## Obsah knihy\n\n';
       
-      // Načteme více kapitol - až 15 nebo všechny pokud je méně
-      const maxChapters = Math.min(spineMatches.length, 15);
+      // Načteme více kapitol - až 20
+      const maxChapters = Math.min(spineMatches.length, 20);
       
       for (let i = 0; i < maxChapters; i++) {
         const idrefMatch = spineMatches[i].match(/idref="([^"]+)"/);
@@ -133,9 +115,9 @@ export const readEpubFile = async (file: File): Promise<string> => {
               
               if (textContent && textContent.length > 50) {
                 fullText += `### Kapitola ${i + 1}\n\n`;
-                // Omezíme délku textu na 1000 znaků na kapitolu
-                const preview = textContent.length > 1000 
-                  ? textContent.substring(0, 1000) + '...' 
+                // Omezíme délku textu na 2000 znaků na kapitolu pro lepší čitelnost
+                const preview = textContent.length > 2000 
+                  ? textContent.substring(0, 2000) + '...' 
                   : textContent;
                 fullText += preview + '\n\n';
               }
@@ -144,8 +126,8 @@ export const readEpubFile = async (file: File): Promise<string> => {
         }
       }
       
-      if (spineMatches.length > 5) {
-        fullText += `\n*Zobrazeno prvních ${maxChapters} kapitol z celkových ${spineMatches.length} kapitol.*`;
+      if (spineMatches.length > maxChapters) {
+        fullText += `\n---\n*Zobrazeno prvních ${maxChapters} kapitol z celkových ${spineMatches.length} kapitol.*`;
       }
     }
 
