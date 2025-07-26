@@ -3,11 +3,8 @@ import ePub from 'epubjs';
 import * as pdfjsLib from 'pdfjs-dist';
 import { marked } from 'marked';
 
-// Opravená konfigurace PDF.js - použijeme lokální worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url,
-).toString();
+// Nastavení PDF.js workera pro Vite prostředí
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export interface BookContent {
   content: string;
