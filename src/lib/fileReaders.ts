@@ -31,7 +31,7 @@ export const readEpubFile = async (file: File): Promise<BookContent> => {
     const spine = await book.loaded.spine;
     
     // Projdeme všechny sekce v pořadí
-    for (const item of spine.items) {
+    for (const item of spine) {
       try {
         const section = book.section(item.href);
         const doc = await section.load(book.load.bind(book));
