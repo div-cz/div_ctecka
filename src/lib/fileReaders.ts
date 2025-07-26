@@ -1,8 +1,7 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import JSZip from 'jszip';
 
-// Nastavení bez workeru pro lepší kompatibilitu
-pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+// Nepotřebujeme worker pro základní čtení PDF
 
 export const readMarkdownFile = async (file: File): Promise<string> => {
   try {
@@ -17,7 +16,12 @@ export const readMarkdownFile = async (file: File): Promise<string> => {
 export const readPdfFile = async (file: File): Promise<string> => {
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pdf = await pdfjsLib.getDocument({ 
+      data: arrayBuffer,
+      useWorkerFetch: false,
+      isEvalSupported: false,
+      useSystemFonts: true
+    }).promise;
     
     let fullText = `# ${file.name.replace('.pdf', '')}\n\n`;
     fullText += `**Počet stran:** ${pdf.numPages}\n`;
