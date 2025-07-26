@@ -1,9 +1,13 @@
+
 import ePub from 'epubjs';
 import * as pdfjsLib from 'pdfjs-dist';
 import { marked } from 'marked';
 
-// Nastavení PDF.js
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Opravená konfigurace PDF.js - použijeme lokální worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.js',
+  import.meta.url,
+).toString();
 
 export interface BookContent {
   content: string;
@@ -18,29 +22,42 @@ export const readEpubFile = async (file: File): Promise<BookContent> => {
     
     // Načtení metadat
     await book.ready;
-    const title = book.packaging.metadata.title;
-    const author = book.packaging.metadata.creator;
+    const metadata = await book.loaded.metadata;
+    const title = metadata.title;
+    const author = metadata.creator;
     
     // Načtení obsahu všech kapitol
-    const spine = book.spine as any;
     let content = '';
+    const spine = await book.loaded.spine;
     
-    for (const item of spine.spineItems || []) {
+    // Projdeme všechny sekce v pořadí
+    for (const item of spine.items) {
       try {
         const section = book.section(item.href);
         const doc = await section.load(book.load.bind(book));
-        // Převod HTML na prostý text
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = typeof doc === 'string' ? doc : '';
-        content += tempDiv.textContent || tempDiv.innerText || '';
-        content += '\n\n';
+        
+        // Převod na text
+        let sectionText = '';
+        if (typeof doc === 'string') {
+          // Pokud je doc HTML string
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(doc, 'text/html');
+          sectionText = htmlDoc.body.textContent || htmlDoc.body.innerText || '';
+        } else if (doc && doc.documentElement) {
+          // Pokud je doc XML Document
+          sectionText = doc.documentElement.textContent || doc.documentElement.innerText || '';
+        }
+        
+        if (sectionText.trim()) {
+          content += sectionText + '\n\n';
+        }
       } catch (error) {
-        console.warn('Chyba při načítání sekce:', error);
+        console.warn('Chyba při načítání sekce:', item.href, error);
       }
     }
     
     return {
-      content: content.trim(),
+      content: content.trim() || 'Nepodařilo se načíst obsah EPUB souboru.',
       title,
       author
     };
@@ -53,7 +70,12 @@ export const readEpubFile = async (file: File): Promise<BookContent> => {
 export const readPdfFile = async (file: File): Promise<BookContent> => {
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+    const pdf = await pdfjsLib.getDocument({
+      data: arrayBuffer,
+      useWorkerFetch: false,
+      isEvalSupported: false,
+      useSystemFonts: true
+    }).promise;
     
     let content = '';
     
@@ -64,30 +86,36 @@ export const readPdfFile = async (file: File): Promise<BookContent> => {
         const textContent = await page.getTextContent();
         
         const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(' ');
+          .map((item: any) => {
+            if ('str' in item) {
+              return item.str;
+            }
+            return '';
+          })
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim();
         
-        content += pageText + '\n\n';
+        if (pageText) {
+          content += pageText + '\n\n';
+        }
       } catch (error) {
         console.warn(`Chyba při načítání stránky ${pageNum}:`, error);
       }
     }
     
     return {
-      content: content.trim()
+      content: content.trim() || 'Nepodařilo se extrahovat text z PDF souboru.'
     };
   } catch (error) {
     console.error('Chyba při čtení PDF:', error);
-    throw new Error('Nepodařilo se načíst PDF soubor');
+    throw new Error('Nepodařilo se načíst PDF soubor. Zkuste jiný soubor.');
   }
 };
 
 export const readMarkdownFile = async (file: File): Promise<BookContent> => {
   try {
     const text = await file.text();
-    
-    // Převod markdown na HTML a pak zpět na čistý text pro zobrazení
-    const html = marked(text);
     
     // Extrakce titulu z prvního H1 nadpisu
     const titleMatch = text.match(/^#\s+(.+)$/m);
