@@ -82,6 +82,12 @@ const Index = () => {
     setSelectedBook(null);
   };
 
+  const handleDeleteBook = (bookId: string) => {
+    setBooks(prev => prev.filter(book => book.id !== bookId));
+    setCurrentView('library');
+    setSelectedBook(null);
+  };
+
   const handleCloseUpload = () => {
     setCurrentView('library');
   };
@@ -101,6 +107,7 @@ const Index = () => {
           book={selectedBook}
           onBack={handleBackToLibrary}
           onProgressUpdate={handleProgressUpdate}
+          onDeleteBook={handleDeleteBook}
         />
       )}
       
