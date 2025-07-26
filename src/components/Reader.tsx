@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, Settings, Bookmark, Search, Moon, Sun, Minus, Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Settings, Bookmark, Search, Moon, Sun, Minus, Plus, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -30,6 +31,10 @@ export const Reader = ({ book, onBack, onProgressUpdate, onDeleteBook }: ReaderP
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<number[]>([]);
+  const [currentSearchIndex, setCurrentSearchIndex] = useState(0);
 
   // Generování obsahu na základě konkrétní knihy
   const generateBookContent = (book: Book) => {
@@ -179,6 +184,57 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliqu
       const newProgress = ((newPage - 1) / totalPages) * 100;
       setProgress(newProgress);
       onProgressUpdate(book.id, newProgress);
+    }
+  };
+
+  // Funkce pro vyhledávání
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    
+    if (!query.trim()) {
+      setSearchResults([]);
+      setCurrentSearchIndex(0);
+      return;
+    }
+
+    const results: number[] = [];
+    const lowerQuery = query.toLowerCase();
+    
+    // Hledáme ve všech stránkách
+    for (let page = 1; page <= totalPages; page++) {
+      const startIndex = (page - 1) * wordsPerPage;
+      const endIndex = startIndex + wordsPerPage;
+      const pageContent = words.slice(startIndex, endIndex).join(' ').toLowerCase();
+      
+      if (pageContent.includes(lowerQuery)) {
+        results.push(page);
+      }
+    }
+    
+    setSearchResults(results);
+    setCurrentSearchIndex(0);
+    
+    // Přejdi na první stránku s výsledkem
+    if (results.length > 0) {
+      handlePageChange(results[0]);
+    }
+  };
+
+  const nextSearchResult = () => {
+    if (searchResults.length > 0) {
+      const nextIndex = (currentSearchIndex + 1) % searchResults.length;
+      setCurrentSearchIndex(nextIndex);
+      handlePageChange(searchResults[nextIndex]);
+    }
+  };
+
+  const previousSearchResult = () => {
+    if (searchResults.length > 0) {
+      const prevIndex = currentSearchIndex === 0 
+        ? searchResults.length - 1 
+        : currentSearchIndex - 1;
+      setCurrentSearchIndex(prevIndex);
+      handlePageChange(searchResults[prevIndex]);
     }
   };
 
@@ -339,9 +395,67 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliqu
             <Button variant="ghost" size="icon" className="text-current">
               <Bookmark className="w-5 h-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-current">
-              <Search className="w-5 h-5" />
-            </Button>
+            <Popover open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-current">
+                  <Search className="w-5 h-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="start">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold">Vyhledávání</h3>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="w-6 h-6"
+                      onClick={() => setIsSearchOpen(false)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  
+                  <Input
+                    placeholder="Hledat v knize..."
+                    value={searchQuery}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    className="w-full"
+                  />
+                  
+                  {searchResults.length > 0 && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        {currentSearchIndex + 1} z {searchResults.length} výsledků
+                      </span>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={previousSearchResult}
+                          disabled={searchResults.length <= 1}
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={nextSearchResult}
+                          disabled={searchResults.length <= 1}
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {searchQuery && searchResults.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      Žádné výsledky nenalezeny
+                    </p>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Stránkování */}
