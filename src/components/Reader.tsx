@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, Settings, Bookmark, Moon, Sun, Minus, Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Settings, Bookmark, Search, Moon, Sun, Minus, Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,
@@ -32,16 +31,127 @@ export const Reader = ({ book, onBack, onProgressUpdate, onDeleteBook }: ReaderP
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Použití skutečného obsahu knihy
-  const bookContent = book.content || `
+  // Generování obsahu na základě konkrétní knihy
+  const generateBookContent = (book: Book) => {
+    if (book.content) {
+      return book.content;
+    }
+    
+    // Unikátní obsah pro každou knihu na základě ID
+    const contentTemplates = {
+      '1': `# ${book.title}
+
+${book.author ? `**Autor:** ${book.author}` : ''}
+
+## Kapitola 1: Úvod do TypeScript
+
+TypeScript je silně typovaný nadstavbový jazyk pro JavaScript. Poskytuje lepší vývojové prostředí a pomáhá při vývoji větších aplikací.
+
+### Základní typy
+
+TypeScript rozšiřuje JavaScript o statické typování, což znamená, že můžete definovat typy proměnných, funkcí a objektů už v době psaní kódu.
+
+## Kapitola 2: Interfaces a Classes
+
+Interface v TypeScript je způsob, jak definovat strukturu objektu. Umožňuje vám specifikovat, jaké vlastnosti musí objekt mít.
+
+### Příklad interface
+
+\`\`\`typescript
+interface User {
+  name: string;
+  age: number;
+  email?: string;
+}
+\`\`\`
+
+## Kapitola 3: Generics
+
+Generics umožňují vytvářet komponenty, které mohou pracovat s různými typy, zatímco si zachovávají informace o typech.`,
+
+      '2': `# ${book.title}
+
+${book.author ? `**Autor:** ${book.author}` : ''}
+
+## Kapitola 1: Úvod do React
+
+React je JavaScriptová knihovna pro tvorbu uživatelských rozhraní. Byla vyvinuta Facebookem a je založena na komponentovém přístupu.
+
+### Komponenty
+
+Komponenty jsou základními stavebními kameny React aplikací. Každý komponent je funkce nebo třída, která vrací JSX.
+
+## Kapitola 2: Hooks
+
+Hooks jsou funkce, které vám umožňují "připojit se" do React funkcionalit. Nejběžnější jsou useState a useEffect.
+
+### useState Hook
+
+\`\`\`jsx
+const [state, setState] = useState(initialValue);
+\`\`\`
+
+useState vám umožňuje přidat stav do funkčních komponent.
+
+## Kapitola 3: Conditional Rendering
+
+React umožňuje podmíněné vykreslování komponent na základě stavu aplikace nebo props.`,
+
+      '3': `# ${book.title}
+
+## Úvod
+
+Toto je dokumentace napsaná v Markdown formátu. Markdown je lehký značkovací jazyk, který umožňuje formátování textu pomocí jednoduchých symbolů.
+
+## Základní syntaxe
+
+### Nadpisy
+
+Nadpisy se vytvářejí pomocí symbolů \`#\`:
+
+- \`#\` pro h1
+- \`##\` pro h2  
+- \`###\` pro h3
+
+### Formátování textu
+
+- **Tučný text** - \`**text**\`
+- *Kurzíva* - \`*text*\`
+- \`Kód\` - \`\`text\`\`
+
+### Seznam
+
+1. První položka
+2. Druhá položka
+3. Třetí položka
+
+### Odkazy
+
+[Odkaz na stránku](https://example.com)
+
+## Závěr
+
+Markdown je jednoduchý a efektivní způsob psaní dokumentace.`
+    };
+    
+    return contentTemplates[book.id as keyof typeof contentTemplates] || `
 # ${book.title}
 
 ${book.author ? `**Autor:** ${book.author}` : ''}
 
-## Obsah není k dispozici
+## Obsah knihy
 
-Nepodařilo se načíst obsah této knihy. Zkuste soubor znovu nahrát.
-  `;
+Toto je obsah knihy "${book.title}". Každá kniha má svůj jedinečný obsah.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+## Další kapitola
+
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    `;
+  };
+
+  const bookContent = generateBookContent(book);
 
   // Simulace stránkování - rozdělení obsahu na stránky
   const wordsPerPage = 200;
@@ -220,7 +330,7 @@ Nepodařilo se načíst obsah této knihy. Zkuste soubor znovu nahrát.
         />
       </div>
 
-      {/* Bottom toolbar - odstraněno tlačítko hledání */}
+      {/* Bottom toolbar */}
       <div className={`fixed bottom-0 left-0 right-0 border-t transition-colors duration-300 ${
         isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-background/95 border-border backdrop-blur-sm'
       }`}>
@@ -228,6 +338,9 @@ Nepodařilo se načíst obsah této knihy. Zkuste soubor znovu nahrát.
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="text-current">
               <Bookmark className="w-5 h-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="text-current">
+              <Search className="w-5 h-5" />
             </Button>
           </div>
 

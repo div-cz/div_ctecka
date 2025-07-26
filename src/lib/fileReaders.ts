@@ -1,10 +1,9 @@
-
 import ePub from 'epubjs';
 import * as pdfjsLib from 'pdfjs-dist';
 import { marked } from 'marked';
 
-// Vypneme worker pro PDF.js - použijeme main thread
-pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+// Nastavení PDF.js
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export interface BookContent {
   content: string;
@@ -19,42 +18,29 @@ export const readEpubFile = async (file: File): Promise<BookContent> => {
     
     // Načtení metadat
     await book.ready;
-    const metadata = await book.loaded.metadata;
-    const title = metadata.title;
-    const author = metadata.creator;
+    const title = book.packaging.metadata.title;
+    const author = book.packaging.metadata.creator;
     
     // Načtení obsahu všech kapitol
+    const spine = book.spine as any;
     let content = '';
-    const spine = await book.loaded.spine;
     
-    // Projdeme všechny sekce v pořadí
-    for (const item of spine) {
+    for (const item of spine.spineItems || []) {
       try {
         const section = book.section(item.href);
         const doc = await section.load(book.load.bind(book));
-        
-        // Převod na text
-        let sectionText = '';
-        if (typeof doc === 'string') {
-          // Pokud je doc HTML string
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(doc, 'text/html');
-          sectionText = htmlDoc.body.textContent || htmlDoc.body.innerText || '';
-        } else if (doc && doc.documentElement) {
-          // Pokud je doc XML Document
-          sectionText = doc.documentElement.textContent || doc.documentElement.innerText || '';
-        }
-        
-        if (sectionText.trim()) {
-          content += sectionText + '\n\n';
-        }
+        // Převod HTML na prostý text
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = typeof doc === 'string' ? doc : '';
+        content += tempDiv.textContent || tempDiv.innerText || '';
+        content += '\n\n';
       } catch (error) {
-        console.warn('Chyba při načítání sekce:', item.href, error);
+        console.warn('Chyba při načítání sekce:', error);
       }
     }
     
     return {
-      content: content.trim() || 'Nepodařilo se načíst obsah EPUB souboru.',
+      content: content.trim(),
       title,
       author
     };
@@ -67,11 +53,7 @@ export const readEpubFile = async (file: File): Promise<BookContent> => {
 export const readPdfFile = async (file: File): Promise<BookContent> => {
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({
-      data: arrayBuffer,
-      useWorkerFetch: false,
-      isEvalSupported: false
-    }).promise;
+    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
     
     let content = '';
     
@@ -82,36 +64,30 @@ export const readPdfFile = async (file: File): Promise<BookContent> => {
         const textContent = await page.getTextContent();
         
         const pageText = textContent.items
-          .map((item: any) => {
-            if ('str' in item) {
-              return item.str;
-            }
-            return '';
-          })
-          .join(' ')
-          .replace(/\s+/g, ' ')
-          .trim();
+          .map((item: any) => item.str)
+          .join(' ');
         
-        if (pageText) {
-          content += pageText + '\n\n';
-        }
+        content += pageText + '\n\n';
       } catch (error) {
         console.warn(`Chyba při načítání stránky ${pageNum}:`, error);
       }
     }
     
     return {
-      content: content.trim() || 'Nepodařilo se extrahovat text z PDF souboru.'
+      content: content.trim()
     };
   } catch (error) {
     console.error('Chyba při čtení PDF:', error);
-    throw new Error('Nepodařilo se načíst PDF soubor. Zkuste jiný soubor.');
+    throw new Error('Nepodařilo se načíst PDF soubor');
   }
 };
 
 export const readMarkdownFile = async (file: File): Promise<BookContent> => {
   try {
     const text = await file.text();
+    
+    // Převod markdown na HTML a pak zpět na čistý text pro zobrazení
+    const html = marked(text);
     
     // Extrakce titulu z prvního H1 nadpisu
     const titleMatch = text.match(/^#\s+(.+)$/m);
