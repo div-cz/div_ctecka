@@ -53,7 +53,10 @@ export const Library = ({ books, onBookSelect, onAddBook }: LibraryProps) => {
     <div className="min-h-screen bg-background p-4 pb-20">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground mb-2">Má knihovna</h1>
+        <div className="flex items-center gap-3 mb-4">
+          <img src="/src/assets/div-logo.png" alt="DIV.cz" className="h-8 w-auto" />
+          <h1 className="text-2xl font-bold text-foreground">Má DIV knihovna</h1>
+        </div>
         <p className="text-muted-foreground text-sm">
           {books.length} {books.length === 1 ? 'kniha' : books.length < 5 ? 'knihy' : 'knih'}
         </p>

@@ -16,10 +16,11 @@
     --popover: 0 0% 100%;
     --popover-foreground: 25 25% 15%;
 
-    /* Hlavní barva inspirovaná knižními deskami */
-    --primary: 25 75% 35%;
+    /* DIV.cz zelené barvy pro knihy */
+    --primary: 83 57% 43%; /* #80AE2E */
     --primary-foreground: 45 23% 97%;
-    --primary-glow: 25 85% 45%;
+    --primary-glow: 83 57% 53%;
+    --primary-dark: 83 49% 33%; /* #61872B */
 
     /* Sekundární barva pro knihovnu */
     --secondary: 45 25% 90%;
@@ -28,7 +29,7 @@
     --muted: 45 15% 93%;
     --muted-foreground: 25 15% 45%;
 
-    --accent: 35 65% 50%;
+    --accent: 83 57% 43%;
     --accent-foreground: 45 23% 97%;
 
     --destructive: 0 75% 55%;
