@@ -3,13 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, FileText, X, Check, Loader2 } from "lucide-react";
+import { Upload, FileText, X, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { readBookFile } from "@/lib/fileReaders";
 
 interface FileUploadProps {
-  onFileUpload: (file: File, metadata: { title: string; author?: string; content?: string }) => void;
+  onFileUpload: (file: File, metadata: { title: string; author?: string }) => void;
   onClose: () => void;
 }
 
@@ -25,7 +24,6 @@ export const FileUpload = ({ onFileUpload, onClose }: FileUploadProps) => {
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -110,34 +108,17 @@ export const FileUpload = ({ onFileUpload, onClose }: FileUploadProps) => {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!uploadedFile || !title.trim() || isLoading) return;
-    
-    setIsLoading(true);
-    
-    try {
-      // Načtení obsahu souboru
-      const bookContent = await readBookFile(uploadedFile.file);
-      
+  const handleSubmit = () => {
+    if (uploadedFile && title.trim()) {
       onFileUpload(uploadedFile.file, {
         title: title.trim(),
-        author: author.trim() || bookContent.author || undefined,
-        content: bookContent.content
+        author: author.trim() || undefined
       });
       
       toast({
         title: "Kniha přidána",
         description: `"${title}" byla úspěšně přidána do knihovny`,
       });
-    } catch (error) {
-      console.error('Chyba při načítání knihy:', error);
-      toast({
-        title: "Chyba při načítání",
-        description: error instanceof Error ? error.message : "Nepodařilo se načíst obsah knihy",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -242,27 +223,17 @@ export const FileUpload = ({ onFileUpload, onClose }: FileUploadProps) => {
                 <Button
                   variant="outline"
                   onClick={() => setUploadedFile(null)}
-                  disabled={isLoading}
                   className="flex-1"
                 >
                   Zpět
                 </Button>
                 <Button
                   onClick={handleSubmit}
-                  disabled={!title.trim() || isLoading}
+                  disabled={!title.trim()}
                   className="flex-1 bg-gradient-primary text-primary-foreground"
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Načítání...
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4 mr-2" />
-                      Přidat
-                    </>
-                  )}
+                  <Check className="w-4 h-4 mr-2" />
+                  Přidat
                 </Button>
               </div>
             </div>

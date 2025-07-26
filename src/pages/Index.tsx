@@ -53,7 +53,7 @@ const Index = () => {
     setCurrentView('upload');
   };
 
-  const handleFileUpload = (file: File, metadata: { title: string; author?: string; content?: string }) => {
+  const handleFileUpload = (file: File, metadata: { title: string; author?: string }) => {
     const newBook: Book = {
       id: Date.now().toString(),
       title: metadata.title,
@@ -62,7 +62,6 @@ const Index = () => {
               file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'md',
       lastRead: new Date(),
       progress: 0,
-      content: metadata.content, // Skutečný obsah souboru
       filePath: URL.createObjectURL(file)
     };
 
