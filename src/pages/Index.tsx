@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Library } from "@/components/Library";
 import { Reader } from "@/components/Reader";
 import { FileUpload } from "@/components/FileUpload";
+import { readFileContent } from "@/lib/fileReaders";
 
 interface Book {
   id: string;
@@ -53,20 +54,43 @@ const Index = () => {
     setCurrentView('upload');
   };
 
-  const handleFileUpload = (file: File, metadata: { title: string; author?: string }) => {
-    const newBook: Book = {
-      id: Date.now().toString(),
-      title: metadata.title,
-      author: metadata.author,
-      format: file.name.toLowerCase().endsWith('.epub') ? 'epub' : 
-              file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'md',
-      lastRead: new Date(),
-      progress: 0,
-      filePath: URL.createObjectURL(file)
-    };
+  const handleFileUpload = async (file: File, metadata: { title: string; author?: string }) => {
+    const format = file.name.toLowerCase().endsWith('.epub') ? 'epub' : 
+                   file.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'md';
+    
+    try {
+      const content = await readFileContent(file, format);
+      
+      const newBook: Book = {
+        id: Date.now().toString(),
+        title: metadata.title,
+        author: metadata.author,
+        format,
+        lastRead: new Date(),
+        progress: 0,
+        content,
+        filePath: URL.createObjectURL(file)
+      };
 
-    setBooks(prev => [newBook, ...prev]);
-    setCurrentView('library');
+      setBooks(prev => [newBook, ...prev]);
+      setCurrentView('library');
+    } catch (error) {
+      console.error('Chyba při načítání knihy:', error);
+      // Vytvoříme knihu i bez obsahu, aby nahrávání neselhal úplně
+      const newBook: Book = {
+        id: Date.now().toString(),
+        title: metadata.title,
+        author: metadata.author,
+        format,
+        lastRead: new Date(),
+        progress: 0,
+        content: `# ${metadata.title}\n\nNepodařilo se načíst obsah souboru.`,
+        filePath: URL.createObjectURL(file)
+      };
+
+      setBooks(prev => [newBook, ...prev]);
+      setCurrentView('library');
+    }
   };
 
   const handleProgressUpdate = (bookId: string, progress: number) => {
