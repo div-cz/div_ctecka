@@ -1,4 +1,8 @@
 import JSZip from 'jszip';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Nastavení worker pro pdfjs
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 export const readMarkdownFile = async (file: File): Promise<string> => {
   try {
@@ -11,42 +15,61 @@ export const readMarkdownFile = async (file: File): Promise<string> => {
 };
 
 export const readPdfFile = async (file: File): Promise<string> => {
-  // Jednoduchý a spolehlivý přístup pro PDF
-  const fileName = file.name.replace('.pdf', '');
-  const sizeInMB = (file.size / 1024 / 1024).toFixed(1);
-  
-  return `# ${fileName}
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-**Typ:** PDF dokument  
-**Velikost:** ${sizeInMB} MB  
-**Nahráno:** ${new Date().toLocaleDateString('cs-CZ')}
+    let fullText = `# ${file.name.replace('.pdf', '')}\n\n`;
+    fullText += `**Typ:** PDF dokument\n`;
+    fullText += `**Počet stran:** ${pdf.numPages}\n`;
+    fullText += `**Velikost:** ${(file.size / 1024 / 1024).toFixed(1)} MB\n\n`;
 
-## 📖 PDF kniha připravena
+    // Extrahujeme text ze všech stránek
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const textContent = await page.getTextContent();
 
-Tento PDF dokument je nyní ve vaší knihovně a můžete s ním pracovat:
+      // Spojíme všechny textové položky
+      const pageText = textContent.items
+        .map((item: any) => item.str)
+        .join(' ')
+        .trim();
 
-### Dostupné funkce:
-- ✅ **Sledování pokroku** - označte si, kde jste skončili
-- ✅ **Záložky** - uložte si důležitá místa  
-- ✅ **Vyhledávání** - najděte knihu podle názvu
-- ✅ **Nastavení čtení** - tmavý režim, velikost písma
-- ✅ **Stránkování** - procházejte knihu po částech
+      if (pageText) {
+        fullText += `\n## Strana ${pageNum}\n\n${pageText}\n`;
+      }
+    }
 
-### O souboru:
-📄 **${file.name}**  
-🗂️ **${file.type || 'application/pdf'}**  
-💾 **${file.size.toLocaleString()} bytů**
+    if (fullText.length < 200) {
+      fullText += '\n\n*Poznámka: PDF dokument může obsahovat převážně obrázky nebo skenované stránky, které nelze převést na text.*';
+    }
 
----
+    return fullText;
+  } catch (error) {
+    console.error('Chyba při čtení PDF:', error);
+    const fileName = file.name.replace('.pdf', '');
+    const sizeInMB = (file.size / 1024 / 1024).toFixed(1);
 
-*PDF je připraven k využití ve vaší digitální knihovně!*`;
+    return `# ${fileName}
+
+**Typ:** PDF dokument
+**Velikost:** ${sizeInMB} MB
+**Chyba:** Nepodařilo se načíst obsah PDF
+
+Možné příčiny:
+- PDF je chráněn heslem
+- PDF obsahuje pouze obrázky (sken)
+- Poškozený PDF soubor
+
+Zkuste jiný PDF soubor nebo použijte aplikaci pro čtení PDF.`;
+  }
 };
 
 export const readEpubFile = async (file: File): Promise<string> => {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const zip = await JSZip.loadAsync(arrayBuffer);
-    
+
     let fullText = `# ${file.name.replace('.epub', '')}\n\n`;
     fullText += `**Velikost:** ${(file.size / 1024 / 1024).toFixed(1)} MB\n\n`;
 
@@ -69,11 +92,11 @@ export const readEpubFile = async (file: File): Promise<string> => {
     }
 
     const opfContent = await opfFile.async('text');
-    
+
     // Extrahujeme metadata
     const titleMatch = opfContent.match(/<dc:title[^>]*>([^<]+)<\/dc:title>/);
     const authorMatch = opfContent.match(/<dc:creator[^>]*>([^<]+)<\/dc:creator>/);
-    
+
     if (titleMatch) {
       fullText += `**Název:** ${titleMatch[1]}\n`;
     }
@@ -86,49 +109,46 @@ export const readEpubFile = async (file: File): Promise<string> => {
     const spineMatches = opfContent.match(/<itemref[^>]+idref="([^"]+)"/g);
     if (spineMatches) {
       fullText += '## Obsah knihy\n\n';
-      
-      // Načteme více kapitol - až 20
-      const maxChapters = Math.min(spineMatches.length, 20);
-      
-      for (let i = 0; i < maxChapters; i++) {
+
+      // Načteme VŠECHNY kapitoly bez limitu
+      for (let i = 0; i < spineMatches.length; i++) {
         const idrefMatch = spineMatches[i].match(/idref="([^"]+)"/);
         if (idrefMatch) {
           const id = idrefMatch[1];
           const manifestMatch = opfContent.match(new RegExp(`<item[^>]+id="${id}"[^>]+href="([^"]+)"`));
-          
+
           if (manifestMatch) {
             const href = manifestMatch[1];
             const basePath = opfPath.substring(0, opfPath.lastIndexOf('/') + 1);
             const fullPath = basePath + href;
-            
+
             const htmlFile = zip.file(fullPath);
             if (htmlFile) {
               const htmlContent = await htmlFile.async('text');
-              
-              // Jednoduché odstranění HTML tagů a extrakce textu
+
+              // Vylepšené odstranění HTML tagů a extrakce textu
               const textContent = htmlContent
                 .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
                 .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<\/p>/gi, '\n\n')
+                .replace(/<\/h[1-6]>/gi, '\n\n')
                 .replace(/<[^>]+>/g, ' ')
                 .replace(/\s+/g, ' ')
+                .replace(/\n\s+/g, '\n')
                 .trim();
-              
+
               if (textContent && textContent.length > 50) {
                 fullText += `### Kapitola ${i + 1}\n\n`;
-                // Omezíme délku textu na 2000 znaků na kapitolu pro lepší čitelnost
-                const preview = textContent.length > 2000 
-                  ? textContent.substring(0, 2000) + '...' 
-                  : textContent;
-                fullText += preview + '\n\n';
+                // Zobrazíme PLNÝ obsah kapitoly bez omezení
+                fullText += textContent + '\n\n';
               }
             }
           }
         }
       }
-      
-      if (spineMatches.length > maxChapters) {
-        fullText += `\n---\n*Zobrazeno prvních ${maxChapters} kapitol z celkových ${spineMatches.length} kapitol.*`;
-      }
+
+      fullText += `\n---\n*Načteno celkem ${spineMatches.length} kapitol.*`;
     }
 
     return fullText;
