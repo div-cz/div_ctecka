@@ -1,73 +1,242 @@
-# Welcome to your Lovable project
+# 📚 Čtečka Knih eKultura
 
-## Project info
+Moderní mobilní aplikace pro čtení elektronických knih pro Android a iOS.
 
-**URL**: https://lovable.dev/projects/bc54af51-0f2c-423e-9711-32129f635b1b
+![Version](https://img.shields.io/badge/version-1.0.0-green)
+![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-blue)
+![License](https://img.shields.io/badge/license-MIT-orange)
 
-## How can I edit this code?
+## 🎯 O projektu
 
-There are several ways of editing your application.
+**Čtečka Knih eKultura** je cross-platform mobilní aplikace určená pro pohodlné čtení elektronických knih. Aplikace podporuje nejběžnější formáty e-knih a nabízí intuitivní uživatelské rozhraní optimalizované pro mobilní zařízení.
 
-**Use Lovable**
+### ✨ Hlavní funkce
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/bc54af51-0f2c-423e-9711-32129f635b1b) and start prompting.
+- 📖 **Podpora formátů:** PDF, EPUB, Markdown
+- 🌙 **Tmavý režim** - pohodlné čtení i v noci
+- 🔍 **Fulltextové vyhledávání** - najděte text v knize
+- 📊 **Sledování pokroku** - pamatuje si, kde jste skončili
+- 📏 **Nastavitelná velikost písma** - 12px až 24px
+- 📄 **Stránkování** - plynulé listování po stránkách
+- 🎨 **Moderní UI** - čistý design inspirovaný DIV.cz
+- 💾 **Knihovna** - správa všech vašich knih na jednom místě
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🏗️ Technologie
 
-**Use your preferred IDE**
+### Frontend
+- **React** 18.3.1 - UI framework
+- **TypeScript** 5.5.3 - typová bezpečnost
+- **Vite** 5.4.1 - build tool
+- **Tailwind CSS** 3.4.11 - styling
+- **shadcn/ui** - komponenty (Radix UI)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Mobile
+- **Capacitor** 7.4.2 - native wrapper pro Android/iOS
+- **@capacitor/filesystem** - přístup k souborovému systému
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Knihovny pro čtení
+- **pdfjs-dist** - extrakce textu z PDF
+- **JSZip** 3.10.1 - zpracování EPUB formátu
 
-Follow these steps:
+### State Management & Utils
+- **React Query** (TanStack Query) - data fetching
+- **React Router DOM** - routing
+- **React Hook Form** - formuláře
+- **Zod** - validace
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🚀 Rychlý start
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Předpoklady
 
-# Step 3: Install the necessary dependencies.
-npm i
+- Node.js 18+ a npm
+- Pro Android: Android Studio
+- Pro iOS: macOS s Xcode a CocoaPods
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Instalace
+
+```bash
+# Klonovat repozitář
+git clone https://github.com/eKultura/ebook-reader.git
+cd ebook-reader
+
+# Nainstalovat závislosti
+npm install
+
+# Spustit dev server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Aplikace poběží na `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Build pro produkci
 
-**Use GitHub Codespaces**
+```bash
+# Build webové aplikace
+npm run build
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Synchronizovat s mobilními platformami
+npx cap sync
 
-## What technologies are used for this project?
+# Otevřít v Android Studio
+npx cap open android
 
-This project is built with:
+# Nebo otevřít v Xcode (pouze macOS)
+npx cap open ios
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📱 Mobilní vývoj
 
-## How can I deploy this project?
+### Android Build
 
-Simply open [Lovable](https://lovable.dev/projects/bc54af51-0f2c-423e-9711-32129f635b1b) and click on Share -> Publish.
+```bash
+# Build aplikace
+npm run build
 
-## Can I connect a custom domain to my Lovable project?
+# Sync s Android
+npx cap sync android
 
-Yes, you can!
+# Otevřít v Android Studio
+npx cap open android
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# Build APK/AAB v Android Studio nebo:
+cd android
+./gradlew assembleRelease  # APK
+./gradlew bundleRelease    # AAB pro Google Play
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### iOS Build
+
+```bash
+# Build aplikace
+npm run build
+
+# Instalace CocoaPods závislostí
+cd ios/App
+pod install
+cd ../..
+
+# Sync s iOS
+npx cap sync ios
+
+# Otevřít v Xcode
+npx cap open ios
+
+# Build v Xcode: Product → Archive
+```
+
+**📖 Detailní návod:** Viz [DEPLOY.md](./DEPLOY.md)
+
+## 📦 Struktura projektu
+
+```
+ebook-reader/
+├── src/
+│   ├── components/       # React komponenty
+│   │   ├── Reader.tsx    # Čtecí rozhraní
+│   │   ├── Library.tsx   # Knihovna knih
+│   │   ├── BookCard.tsx  # Karta knihy
+│   │   └── ui/           # shadcn/ui komponenty
+│   ├── lib/
+│   │   ├── fileReaders.ts  # PDF/EPUB/MD parsing
+│   │   └── utils.ts        # Utility funkce
+│   ├── hooks/            # Custom React hooks
+│   ├── pages/            # Stránky aplikace
+│   └── App.tsx           # Hlavní komponenta
+├── android/              # Android native projekt
+├── ios/                  # iOS native projekt
+├── public/               # Statické assety
+├── capacitor.config.ts   # Capacitor konfigurace
+├── vite.config.ts        # Vite konfigurace
+├── tailwind.config.ts    # Tailwind konfigurace
+└── package.json          # NPM závislosti
+```
+
+## 🎨 Design
+
+Aplikace využívá vlastní design system založený na:
+- **Primární barva:** DIV.cz Green (#80AE2E)
+- **Pozadí:** Teplý krémový odstín (#f7f3ee)
+- **Typografie:** System font stack pro optimální čitelnost
+- **Responzivní layout:** 2 sloupce (mobil) → 3 (tablet) → 4 (desktop)
+
+## 📝 Skripty
+
+```bash
+# Development
+npm run dev              # Spustit dev server
+
+# Build
+npm run build            # Production build
+npm run build:dev        # Development build
+npm run preview          # Preview production buildu
+
+# Linting
+npm run lint             # Spustit ESLint
+
+# Capacitor
+npx cap sync             # Sync web → native
+npx cap open android     # Otevřít Android Studio
+npx cap open ios         # Otevřít Xcode
+```
+
+## 🔒 Konfigurace
+
+### App ID a název
+
+- **App ID:** `app.lovable.bc54af510f2c423e971132129f635b1b`
+- **Název:** Čtečka Knih
+- **Balíček:** `app.lovable.bc54af510f2c423e971132129f635b1b`
+
+Změnit lze v `capacitor.config.ts`:
+```typescript
+{
+  appId: 'app.lovable.bc54af510f2c423e971132129f635b1b',
+  appName: 'Čtečka Knih',
+  ...
+}
+```
+
+## 🐛 Známé problémy a omezení
+
+- PDF s ochranou heslem nelze načíst
+- Skenované PDF (pouze obrázky) nemají extrahovatelný text
+- EPUB s komplexním CSS může mít odlišné formátování
+- Velké knihy (>100 MB) mohou být pomalé při načítání
+
+## 🤝 Přispívání
+
+Příspěvky jsou vítány! Postupujte následovně:
+
+1. Forkněte projekt
+2. Vytvořte feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commitněte změny (`git commit -m 'Add some AmazingFeature'`)
+4. Pushněte do branch (`git push origin feature/AmazingFeature`)
+5. Otevřete Pull Request
+
+## 📄 Licence
+
+Tento projekt je licencován pod MIT licencí.
+
+## 🔗 Užitečné odkazy
+
+- **Lovable Project:** https://lovable.dev/projects/bc54af51-0f2c-423e-9711-32129f635b1b
+- **Repository:** https://github.com/eKultura/ebook-reader
+- **Issues:** https://github.com/eKultura/ebook-reader/issues
+- **Capacitor Docs:** https://capacitorjs.com/docs
+- **React Docs:** https://react.dev
+- **Tailwind CSS:** https://tailwindcss.com
+
+## 👥 Autoři
+
+- **eKultura Team**
+
+## 🙏 Poděkování
+
+- [Lovable](https://lovable.dev) - web development platform
+- [Capacitor](https://capacitorjs.com) - cross-platform framework
+- [PDF.js](https://mozilla.github.io/pdf.js/) - PDF rendering
+- [shadcn/ui](https://ui.shadcn.com/) - UI komponenty
+
+---
+
+**Vytvořeno s ❤️ v České republice**
