@@ -86,7 +86,36 @@ npx cap open ios
 
 ## 📱 Mobilní vývoj
 
-### Android Build
+### 🤖 GitHub Actions (Doporučeno)
+
+Projekt podporuje **automatický build pomocí GitHub Actions** - nejjednodušší způsob!
+
+```bash
+# 1. Push kódu do GitHubu
+git push origin main
+
+# 2. GitHub Actions automaticky builduje AAB a APK
+# 3. Stáhnout hotové soubory z GitHub Actions Artifacts
+```
+
+**📖 Kompletní návod:** [GITHUB_ACTIONS.md](./GITHUB_ACTIONS.md)
+
+#### Rychlý start s GitHub Actions:
+
+1. **Automatický build** - každý push do `main` spustí build
+2. **Stáhnout artifacts** - GitHub → Actions → vybrat run → Artifacts
+3. **Upload do Play Store** - stáhnout AAB a nahrát
+
+#### Signed release (produkce):
+
+1. GitHub → **Actions** → **Android Signed Release**
+2. Kliknout **Run workflow**
+3. Zadat verzi (např. `1.0.0`)
+4. Stáhnout signed AAB ready pro Google Play
+
+### 🔨 Lokální Build (alternativa)
+
+#### Android Build
 
 ```bash
 # Build aplikace
@@ -104,7 +133,7 @@ cd android
 ./gradlew bundleRelease    # AAB pro Google Play
 ```
 
-### iOS Build
+#### iOS Build
 
 ```bash
 # Build aplikace
