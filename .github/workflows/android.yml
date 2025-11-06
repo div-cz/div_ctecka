@@ -42,6 +42,9 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Set JAVA_HOME explicitly
+        run: echo "JAVA_HOME=$JAVA_HOME" >> $GITHUB_ENV
+  
       - name: Decode keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/upload-keystore.jks
