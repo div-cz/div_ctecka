@@ -14,10 +14,10 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "app.lovable.bc54af510f2c423e971132129f635b1b"
+    namespace "cz.div.reader"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "app.lovable.bc54af510f2c423e971132129f635b1b"
+        applicationId "cz.div.reader"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

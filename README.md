@@ -1,14 +1,19 @@
-# 📚 Čtečka Knih eKultura
+# 📚 DIV Čtečka
 
-Moderní mobilní aplikace pro čtení elektronických knih pro Android a iOS.
+Mobilní aplikace pro čtení elektronických knih pro Android a iOS od DIV.cz.
 
 ![Version](https://img.shields.io/badge/version-1.0.0-green)
 ![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-blue)
-![License](https://img.shields.io/badge/license-MIT-orange)
+![DIV.cz](https://img.shields.io/badge/DIV.cz-green)
 
 ## 🎯 O projektu
 
-**Čtečka Knih eKultura** je cross-platform mobilní aplikace určená pro pohodlné čtení elektronických knih. Aplikace podporuje nejběžnější formáty e-knih a nabízí intuitivní uživatelské rozhraní optimalizované pro mobilní zařízení.
+**DIV Čtečka** je cross-platform mobilní aplikace od **DIV.cz** určená pro pohodlné čtení elektronických knih. Aplikace podporuje nejběžnější formáty e-knih a nabízí intuitivní uživatelské rozhraní optimalizované pro mobilní zařízení.
+
+- **Bundle ID:** `cz.div.reader`
+- **Název aplikace:** DIV Čtečka
+- **Pro:** Android a iOS
+- **Organizace:** DIV.cz
 
 ### ✨ Hlavní funkce
 
@@ -49,15 +54,15 @@ Moderní mobilní aplikace pro čtení elektronických knih pro Android a iOS.
 ### Předpoklady
 
 - Node.js 18+ a npm
-- Pro Android: Android Studio
+- Pro Android: Android Studio + JDK 21
 - Pro iOS: macOS s Xcode a CocoaPods
 
 ### Instalace
 
 ```bash
 # Klonovat repozitář
-git clone https://github.com/eKultura/ebook-reader.git
-cd ebook-reader
+git clone https://github.com/div-cz/div_mobile_app.git
+cd div_mobile_app
 
 # Nainstalovat závislosti
 npm install
@@ -158,7 +163,7 @@ npx cap open ios
 ## 📦 Struktura projektu
 
 ```
-ebook-reader/
+div_mobile_app/
 ├── src/
 │   ├── components/       # React komponenty
 │   │   ├── Reader.tsx    # Čtecí rozhraní
@@ -188,6 +193,23 @@ Aplikace využívá vlastní design system založený na:
 - **Typografie:** System font stack pro optimální čitelnost
 - **Responzivní layout:** 2 sloupce (mobil) → 3 (tablet) → 4 (desktop)
 
+## 🔒 Konfigurace
+
+### App ID a název
+
+- **App ID:** `cz.div.reader`
+- **Název:** DIV Čtečka
+- **Bundle:** `cz.div.reader`
+
+Změnit lze v `capacitor.config.ts`:
+```typescript
+{
+  appId: 'cz.div.reader',
+  appName: 'DIV Čtečka',
+  ...
+}
+```
+
 ## 📝 Skripty
 
 ```bash
@@ -206,23 +228,9 @@ npm run lint             # Spustit ESLint
 npx cap sync             # Sync web → native
 npx cap open android     # Otevřít Android Studio
 npx cap open ios         # Otevřít Xcode
-```
 
-## 🔒 Konfigurace
-
-### App ID a název
-
-- **App ID:** `app.lovable.bc54af510f2c423e971132129f635b1b`
-- **Název:** Čtečka Knih
-- **Balíček:** `app.lovable.bc54af510f2c423e971132129f635b1b`
-
-Změnit lze v `capacitor.config.ts`:
-```typescript
-{
-  appId: 'app.lovable.bc54af510f2c423e971132129f635b1b',
-  appName: 'Čtečka Knih',
-  ...
-}
+# Signing (pro Google Play)
+./create-signed-release.sh   # Vytvořit podepsaný AAB
 ```
 
 ## 🐛 Známé problémy a omezení
@@ -248,24 +256,25 @@ Tento projekt je licencován pod MIT licencí.
 
 ## 🔗 Užitečné odkazy
 
-- **Lovable Project:** https://lovable.dev/projects/bc54af51-0f2c-423e-9711-32129f635b1b
-- **Repository:** https://github.com/eKultura/ebook-reader
-- **Issues:** https://github.com/eKultura/ebook-reader/issues
+- **Repository:** https://github.com/div-cz/div_mobile_app
+- **Issues:** https://github.com/div-cz/div_mobile_app/issues
+- **DIV.cz:** https://www.div.cz
 - **Capacitor Docs:** https://capacitorjs.com/docs
 - **React Docs:** https://react.dev
 - **Tailwind CSS:** https://tailwindcss.com
 
 ## 👥 Autoři
 
-- **eKultura Team**
+- **DIV.cz Team**
 
 ## 🙏 Poděkování
 
-- [Lovable](https://lovable.dev) - web development platform
 - [Capacitor](https://capacitorjs.com) - cross-platform framework
 - [PDF.js](https://mozilla.github.io/pdf.js/) - PDF rendering
 - [shadcn/ui](https://ui.shadcn.com/) - UI komponenty
 
 ---
 
-**Vytvořeno s ❤️ v České republice**
+**DIV.cz - Digitální informace a vzdělávání**
+
+**Vytvořeno v České republice** 🇨🇿

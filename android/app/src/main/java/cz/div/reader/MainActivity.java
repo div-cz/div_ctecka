@@ -1,4 +1,4 @@
-package app.lovable.bc54af510f2c423e971132129f635b1b;
+package cz.div.reader;
 
 import com.getcapacitor.BridgeActivity;
 
