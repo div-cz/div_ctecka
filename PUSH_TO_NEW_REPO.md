@@ -1,4 +1,4 @@
-# 🚀 Nahrání projektu do div-cz/div_mobile_app
+# 🚀 Nahrání projektu do div-cz/div_ctecka
 
 Tento návod popisuje jak nahrát projekt s čistým štítem do nového GitHub repozitáře.
 
@@ -19,7 +19,7 @@ Projekt je připraven pro DIV.cz:
 1. Jít na https://github.com/div-cz
 2. Kliknout **New repository**
 3. Nastavit:
-   - **Repository name:** `div_mobile_app`
+   - **Repository name:** `div_ctecka`
    - **Description:** `Mobilní čtečka elektronických knih pro Android a iOS`
    - **Visibility:** Public nebo Private (podle preference)
    - **⚠️ NEŠKRTÁVEJTE:** "Add a README file" - NECHAT PRÁZDNÉ!
@@ -48,13 +48,13 @@ git commit -m "Rebrand to DIV.cz - change app name and bundle ID"
 git remote remove origin
 
 # Přidat nový remote
-git remote add origin https://github.com/div-cz/div_mobile_app.git
+git remote add origin https://github.com/div-cz/div_ctecka.git
 
 # Ověřit nový remote
 git remote -v
 # Mělo by ukázat:
-# origin  https://github.com/div-cz/div_mobile_app.git (fetch)
-# origin  https://github.com/div-cz/div_mobile_app.git (push)
+# origin  https://github.com/div-cz/div_ctecka.git (fetch)
+# origin  https://github.com/div-cz/div_ctecka.git (push)
 ```
 
 ### 4. Push do nového repozitáře
@@ -65,7 +65,7 @@ git branch -M main
 git push -u origin main
 ```
 
-**Hotovo!** ✅ Projekt je nyní na `https://github.com/div-cz/div_mobile_app`
+**Hotovo!** ✅ Projekt je nyní na `https://github.com/div-cz/div_ctecka`
 
 ---
 
@@ -101,7 +101,7 @@ git commit -m "Initial commit: DIV Čtečka - mobilní aplikace pro čtení e-kn
 
 # 6. Přidat remote a push
 git branch -M main
-git remote add origin https://github.com/div-cz/div_mobile_app.git
+git remote add origin https://github.com/div-cz/div_ctecka.git
 git push -u origin main
 ```
 
@@ -111,7 +111,7 @@ git push -u origin main
 
 Po pushnutí nastavit secrets pro automatické buildy:
 
-1. Jít na https://github.com/div-cz/div_mobile_app/settings/secrets/actions
+1. Jít na https://github.com/div-cz/div_ctecka/settings/secrets/actions
 2. Kliknout **New repository secret**
 3. Přidat tyto secrets (viz SIGNING.md pro detaily):
    - `ANDROID_KEYSTORE_BASE64`
@@ -125,7 +125,7 @@ Po pushnutí nastavit secrets pro automatické buildy:
 
 Po pushnutí:
 
-1. Jít na https://github.com/div-cz/div_mobile_app/actions
+1. Jít na https://github.com/div-cz/div_ctecka/actions
 2. **Android Release Build** workflow se spustí automaticky
 3. Po 3-5 minutách stáhnout AAB/APK z Artifacts
 
@@ -137,7 +137,7 @@ Po pushnutí zkontrolovat:
 
 - [ ] README zobrazuje "DIV Čtečka" a DIV.cz odkazy
 - [ ] GitHub Actions workflow běží (Actions tab)
-- [ ] Repozitář je na správné adrese: `div-cz/div_mobile_app`
+- [ ] Repozitář je na správné adrese: `div-cz/div_ctecka`
 - [ ] Není tam nic o "eKultura" nebo "Lovable"
 - [ ] Bundle ID v souborech je `cz.div.reader`
 
@@ -147,7 +147,7 @@ Po pushnutí zkontrolovat:
 
 Projekt je nyní čistý a připravený pro DIV.cz na:
 
-**https://github.com/div-cz/div_mobile_app**
+**https://github.com/div-cz/div_ctecka**
 
 ### Další kroky:
 
@@ -162,8 +162,8 @@ Projekt je nyní čistý a připravený pro DIV.cz na:
 
 ```bash
 # Naklonovat z nového repozitáře
-git clone https://github.com/div-cz/div_mobile_app.git
-cd div_mobile_app
+git clone https://github.com/div-cz/div_ctecka.git
+cd div_ctecka
 
 # Instalace závislostí
 npm install

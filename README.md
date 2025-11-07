@@ -61,8 +61,8 @@ Mobilní aplikace pro čtení elektronických knih pro Android a iOS od DIV.cz.
 
 ```bash
 # Klonovat repozitář
-git clone https://github.com/div-cz/div_mobile_app.git
-cd div_mobile_app
+git clone https://github.com/div-cz/div_ctecka.git
+cd div_ctecka
 
 # Nainstalovat závislosti
 npm install
@@ -163,7 +163,7 @@ npx cap open ios
 ## 📦 Struktura projektu
 
 ```
-div_mobile_app/
+div_ctecka/
 ├── src/
 │   ├── components/       # React komponenty
 │   │   ├── Reader.tsx    # Čtecí rozhraní
@@ -256,8 +256,8 @@ Tento projekt je licencován pod MIT licencí.
 
 ## 🔗 Užitečné odkazy
 
-- **Repository:** https://github.com/div-cz/div_mobile_app
-- **Issues:** https://github.com/div-cz/div_mobile_app/issues
+- **Repository:** https://github.com/div-cz/div_ctecka
+- **Issues:** https://github.com/div-cz/div_ctecka/issues
 - **DIV.cz:** https://www.div.cz
 - **Capacitor Docs:** https://capacitorjs.com/docs
 - **React Docs:** https://react.dev

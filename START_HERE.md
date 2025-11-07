@@ -1,6 +1,6 @@
 # 🎯 START HERE - DIV Čtečka
 
-**Projekt je připraven pro nahrání do https://github.com/div-cz/div_mobile_app**
+**Projekt je připraven pro nahrání do https://github.com/div-cz/div_ctecka**
 
 ## ✅ Co je hotové
 
@@ -17,7 +17,7 @@
 
 1. Jít na https://github.com/div-cz
 2. Kliknout **New repository**
-3. Jméno: `div_mobile_app`
+3. Jméno: `div_ctecka`
 4. **⚠️ NECHAT PRÁZDNÉ** - bez README, bez .gitignore, bez license
 5. Kliknout **Create repository**
 
@@ -32,12 +32,12 @@ git init
 git add .
 git commit -m "Initial commit: DIV Čtečka - mobilní aplikace pro e-knihy"
 git branch -M main
-git remote add origin https://github.com/div-cz/div_mobile_app.git
+git remote add origin https://github.com/div-cz/div_ctecka.git
 git push -u origin main
 
 # NEBO zachovat historii:
 git remote remove origin
-git remote add origin https://github.com/div-cz/div_mobile_app.git
+git remote add origin https://github.com/div-cz/div_ctecka.git
 git push -u origin main
 ```
 
@@ -122,7 +122,7 @@ cp android/keystore.properties ~/BACKUP/
 **Název:** DIV Čtečka
 **Organizace:** DIV.cz
 
-**GitHub:** https://github.com/div-cz/div_mobile_app
+**GitHub:** https://github.com/div-cz/div_ctecka
 **Google Play:** (po publikaci)
 
 ---
@@ -147,7 +147,7 @@ Zkontrolujte že jsou secrets nastaveny (viz **GITHUB_ACTIONS.md**)
 ## 🎉 Shrnutí
 
 1. ✅ Projekt je připraven
-2. 📤 Push do `github.com/div-cz/div_mobile_app`
+2. 📤 Push do `github.com/div-cz/div_ctecka`
 3. 🔐 Vytvořit signed AAB: `./create-signed-release.sh`
 4. 📱 Nahrát do Google Play Console
 5. 🚀 Publikovat!
