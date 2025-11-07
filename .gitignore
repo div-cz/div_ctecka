@@ -22,3 +22,28 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Android signing files - CRITICAL: Do not commit these!
+*.jks
+*.keystore
+keystore.properties
+android/keystore.properties
+android/app/*.jks
+android/app/*.keystore
+android/app/release-key.*
+android/key.properties
+google-services.json
+
+# Android build outputs
+android/app/build/
+android/app/release/
+android/.gradle/
+android/build/
+android/local.properties
+
+# iOS build outputs and sensitive files
+ios/App/Pods/
+ios/App/build/
+ios/App/*.mobileprovision
+ios/App/*.p12
+ios/App/*.cer

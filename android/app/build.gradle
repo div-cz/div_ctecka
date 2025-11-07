@@ -1,5 +1,18 @@
 apply plugin: 'com.android.application'
 
+// Load keystore properties for signing (if exists)
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+def canSign = false
+
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    canSign = true
+    logger.info("✅ Keystore configuration loaded - signing enabled")
+} else {
+    logger.info("⚠️ keystore.properties not found - using unsigned build")
+}
+
 android {
     namespace "app.lovable.bc54af510f2c423e971132129f635b1b"
     compileSdk rootProject.ext.compileSdkVersion
@@ -16,8 +29,24 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+
+    // Signing configuration (if keystore.properties exists)
+    if (canSign) {
+        signingConfigs {
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+
     buildTypes {
         release {
+            if (canSign) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
