@@ -10,7 +10,7 @@ echo "=========================================="
 echo ""
 
 # Check if keystore exists
-if [ ! -f "android/app/release-key.jks" ]; then
+if [ ! -f "android/div-release-key.jks" ]; then
     echo "⚠️  Keystore nenalezen!"
     echo ""
     echo "Vytváření nového keystore..."
@@ -22,7 +22,7 @@ if [ ! -f "android/app/release-key.jks" ]; then
     echo ""
 
     cd android/app
-    keytool -genkey -v -keystore release-key.jks \
+    keytool -genkey -v -keystore div-release-key.jks \
         -alias ekultura-release \
         -keyalg RSA \
         -keysize 2048 \
